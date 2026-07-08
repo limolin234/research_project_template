@@ -1,6 +1,11 @@
 # Research Project Template
 
-Template for evidence-led technical feasibility reports.
+Minimal infrastructure for agent-assisted research projects.
+
+The template starts small on purpose. It provides a stable place for human
+judgment, agent expansion, project status, workflow rules, and research notes.
+Add data, scripts, figures, claim ledgers, or graphs only when the project
+actually needs them.
 
 ## Structure
 
@@ -10,58 +15,46 @@ Template for evidence-led technical feasibility reports.
 ├── README.md
 ├── workflow.md
 ├── manual.md
-├── data/
-├── sources/
-├── technical_points/
-│   ├── ledger.csv
-│   └── graph/
-├── integration/
-├── figures/
-├── drafts/
+├── manual_agent.md
 ├── docs_graph/
-│   └── docs_graph.md
-└── scripts/
-    └── check_project.py
+│   ├── docs_graph.md
+│   └── status.md
+└── research_notes/
+    └── research_notes.md
 ```
 
-## Use
+## Roles
 
-- `manual.md`: human-maintained working manuscript.
-- `sources/`: evidence notes, registries, search logs, rejected-source notes.
-- `technical_points/ledger.csv`: machine-readable claim/technical-point ledger.
-- `technical_points/graph/`: derived graph artifacts from the ledger.
-- `integration/`: formulas, calculations, sensitivity models, figures.
-- `drafts/`: active report source and rendered outputs.
-- `docs_graph/`: durable navigation and project status.
+- `manual.md`: human-maintained project line, judgment, doubts, and stop
+  conditions.
+- `manual_agent.md`: agent-expanded version of the human line, for review and
+  execution.
+- `workflow.md`: durable rules for human-agent collaboration.
+- `AGENT.md`: agent scratchpad and startup note. Durable rules do not belong
+  here.
+- `docs_graph/`: concise project map and commit-to-commit status.
+- `research_notes/`: sources, technical points, evidence notes, open questions,
+  and negative results.
 
-Copy this folder, then replace placeholders with the project-specific source document and claim ledger.
+## Upgrade Path
 
-## Bootstrap A New Project
+Keep the default tree lightweight. Add folders only when they have work to do:
 
-From this template directory:
+- Add `data/` when the project has datasets or generated tables.
+- Add `scripts/` when commands need to be reproducible.
+- Add `figures/` when generated figures need provenance.
+- Split `research_notes/` into multiple files when one file becomes hard to
+  scan.
+- Add a claim ledger when the project contains many auditable factual or
+  causal claims.
+- Generate a graph only as a derived view from notes or ledgers, not as the
+  default source of truth.
 
-```bash
-python3 scripts/new_project.py ../my_new_research_project --name "My New Research Project" --git
-```
+## First Use
 
-The script copies the template, rewrites the display name in text files, and optionally initializes a fresh Git repo.
-
-## Generate A Local Graph
-
-After filling `technical_points/ledger.csv`:
-
-```bash
-python3 scripts/build_graph_from_ledger.py
-```
-
-This creates `technical_points/graph/nodes.jsonl`, `edges.jsonl`, `chunks.jsonl`, and `manifest.json`.
-
-## Example
-
-See `examples/glassbridge_like/` for a minimal photonic-packaging style project:
-
-```bash
-cd examples/glassbridge_like
-python3 scripts/check_project.py
-python3 integration/offset_model.py
-```
+1. Rename the project in this README.
+2. Fill `manual.md` with the human-owned project line.
+3. Ask the agent to expand `manual_agent.md`.
+4. Add initial sources, technical points, and open questions to
+   `research_notes/research_notes.md`.
+5. Update `docs_graph/status.md` before each stable commit.

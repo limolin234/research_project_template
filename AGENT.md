@@ -1,20 +1,13 @@
-# Agent Guide
+# Agent Scratchpad
 
-This project follows the research-audit template.
+This file is for agent-local startup notes and short-lived working reminders.
+Durable project rules belong in `workflow.md`; project status belongs in
+`docs_graph/status.md`.
 
-## Workflow
+Recommended startup:
 
-1. Read `workflow.md`, `docs_graph/docs_graph.md`, and the active `manual.md` if present.
-2. Preserve source technical details in `technical_points/ledger.csv` before rewriting.
-3. Keep evidence status separate from source-draft labels.
-4. Compare alternatives at the same layer: interface, package, module, system, cost, reliability.
-5. Put stable project context in `docs_graph/`, detailed sources in `sources/`, models in `integration/`, and deliverables in `drafts/`.
-6. Compile or render deliverables before reporting completion.
-
-## Commands
-
-```bash
-python3 scripts/check_project.py
-python3 scripts/build_graph_from_ledger.py
-python3 scripts/new_project.py ../my_new_project --name "My New Project" --git
-```
+1. Read `workflow.md`.
+2. Read `manual.md` and `manual_agent.md`.
+3. Read `docs_graph/docs_graph.md` and `docs_graph/status.md`.
+4. Read `research_notes/research_notes.md`.
+5. Keep `manual.md` human-owned. Put expansions in `manual_agent.md`.

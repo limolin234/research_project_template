@@ -1,3 +1,0 @@
-{"relation": "has_evidence_status", "source": "TP-0001", "target": "evidence_status:PENDING"}
-{"relation": "has_verification_status", "source": "TP-0001", "target": "verification_status:PENDING"}
-{"relation": "has_rewritten_location", "source": "TP-0001", "target": "rewritten_location:report body"}

@@ -1,4 +1,0 @@
-{"id": "TP-0001", "label": "replace this row", "properties": {"action": "verify", "evidence_status": "PENDING", "impact": "impact", "item_id": "TP-0001", "mechanism": "mechanism", "note": "template row", "original_item": "replace this row", "original_section": "placeholder", "rewritten_location": "report body", "verification_status": "PENDING"}, "type": "technical_point"}
-{"id": "evidence_status:PENDING", "label": "PENDING", "properties": {}, "type": "evidence_status"}
-{"id": "verification_status:PENDING", "label": "PENDING", "properties": {}, "type": "verification_status"}
-{"id": "rewritten_location:report body", "label": "report body", "properties": {}, "type": "rewritten_location"}

@@ -1,4 +1,0 @@
-item_id,original_section,original_item,rewritten_location,mechanism,impact,evidence_status,verification_status,action,note
-TP-0001,interface,lateral offset causes insertion loss,loss model,Gaussian mode overlap,sets passive-alignment tolerance,E3,MODEL_ONLY,verify mode radius,example row
-TP-0002,manufacturing,systematic offset shifts all channels,yield model,common-mode process bias,amplifies worst-channel failure,E4/PENDING,PENDING,measure process mean,example row
-TP-0003,alternatives,2D fiber array grating route is same-layer comparator,route comparison,surface coupling instead of edge bridge,changes density and loss tradeoff,E3/PENDING,PENDING,find full paper,example row

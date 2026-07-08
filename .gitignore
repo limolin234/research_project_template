@@ -1,15 +1,33 @@
+# Local environment
+.env
 .venv/
+venv/
 __pycache__/
-*.pyc
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# LaTeX intermediates
 *.aux
+*.bbl
+*.bcf
+*.blg
 *.fls
 *.fdb_latexmk
-*.log
 *.out
+*.run.xml
 *.synctex.gz
+*.toc
 *.xdv
-drafts/*.pdf
-!drafts/README.md
-tmp/
-*.tmp
-.~lock.*
+
+# Local research snapshots and generated heavy artifacts
+research_notes/snapshots/
+derived_graph/

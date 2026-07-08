@@ -1,9 +1,0 @@
-{
-  "schema": "research-property-graph-v1",
-  "nodes": "nodes.jsonl",
-  "edges": "edges.jsonl",
-  "chunks": "chunks.jsonl",
-  "node_count": 4,
-  "edge_count": 3,
-  "chunk_count": 1
-}

@@ -1,18 +1,20 @@
 # Docs Graph
 
-Project-local context and navigation.
+Project-local navigation for humans and agents.
 
-## Current State
+Keep this file concise. It should point to the right project files instead of
+duplicating their content.
 
-- Active deliverable: `drafts/`.
-- Evidence registry: `sources/`.
-- Claim ledger: `technical_points/ledger.csv`.
-- Models: `integration/`.
+## Core Files
 
-## Stable Decisions
+- `workflow.md`: durable collaboration rules.
+- `manual.md`: human-owned project line.
+- `manual_agent.md`: agent-expanded working skeleton.
+- `research_notes/research_notes.md`: sources, technical points, evidence
+  notes, open questions, and negative results.
+- `docs_graph/status.md`: current status and next steps.
 
-- Evidence status and source-draft labels are separate.
-- Same-layer comparisons are required for alternatives.
-- Generated graph artifacts are derived from the ledger and source notes.
-- `scripts/new_project.py` is the preferred bootstrap path for new projects.
-- `examples/glassbridge_like/` is the minimal example project for future similar work.
+## Expansion Rule
+
+Add more docs graph files only when this file becomes too large or when a
+project area needs its own stable navigation.
