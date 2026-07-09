@@ -9,7 +9,10 @@ Start with one file. Split only when this becomes hard to scan.
 
 | id | title | type | link_or_doi | date_or_version | used_for | status | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| S001 | TBD | TBD | TBD | TBD | TBD | pending | TBD |
+
+Use statuses such as `candidate`, `read`, `verified`, `rejected`, `negative`,
+and `pending`. Add rows only for real sources; do not keep placeholder rows as
+project evidence.
 
 ## Technical Points
 

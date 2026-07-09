@@ -24,8 +24,9 @@ the project readable, recoverable, and easy for humans and agents to continue.
   agent may write or update `AGENT.md`. This is separate from the manuscript
   layer, so it does not conflict with `manual.md` or `manual_agent.md`.
   Durable rules still belong in `workflow.md`.
-- `docs_graph/` stores project navigation and status, not long prose. The agent
-  should update it at stable phases.
+- `docs_graph/` stores project navigation and status, not long prose. It is a
+  self-contained Markdown docs graph; read `docs_graph/docs_graph.md` for its
+  local usage rules. The agent should update it at stable phases.
 - `research_notes/` stores sources, technical points, open questions,
   evidence notes, and negative results. The agent maintains it during execution;
   humans review critical claims and final conclusions.

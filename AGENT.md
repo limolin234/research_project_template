@@ -18,3 +18,12 @@ Recommended startup:
 3. Read `docs_graph/docs_graph.md` and `docs_graph/status.md`.
 4. Read `research_notes/research_notes.md`.
 5. Keep `manual.md` human-owned. Put AI completion in `manual_agent.md`.
+
+First-run guard:
+
+- If `manual.md`, `manual_agent.md`, `docs_graph/status.md`, or
+  `research_notes/research_notes.md` still contain only template placeholders,
+  do not treat them as project facts.
+- Follow the `First Use` checklist in `README.md` before substantial work.
+- If the project goal, license, remote, or output target is unclear, ask for
+  that missing setup information instead of inventing it.
