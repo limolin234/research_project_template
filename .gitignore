@@ -22,10 +22,13 @@ temp/
 *.blg
 *.fls
 *.fdb_latexmk
+*.nav
 *.out
 *.run.xml
+*.snm
 *.synctex.gz
 *.toc
+*.vrb
 *.xdv
 
 # Local research snapshots and generated heavy artifacts

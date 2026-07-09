@@ -9,7 +9,7 @@ duplicating their content.
 
 - `workflow.md`: durable collaboration rules.
 - `manual.md`: human-owned project line.
-- `manual_agent.md`: agent-expanded working skeleton.
+- `manual_agent.md`: AI-completed version of `manual.md`.
 - `research_notes/research_notes.md`: sources, technical points, evidence
   notes, open questions, and negative results.
 - `docs_graph/status.md`: current status and next steps.

@@ -1,11 +1,12 @@
 # Manual Agent
 
-Agent-expanded working skeleton.
+AI-completed version of `manual.md`.
 
-The agent uses this file to expand `manual.md` into tasks, structure, checks,
-and draft plans. Keep human judgment in `manual.md`; keep agent expansion here.
+The agent uses this file to complete and expand `manual.md` into clearer
+structure, missing points, checks, and draft plans. Keep human judgment in
+`manual.md`; keep AI completion here until the human reviews it.
 
-## Expanded Structure
+## Completed Structure
 
 TBD
 
