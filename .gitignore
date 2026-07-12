@@ -1,3 +1,6 @@
+# Maintenance: prefer patterns for generated-file categories over individual
+# filenames. Check matches before committing so required project files remain tracked.
+
 # Local environment
 .env
 .venv/
