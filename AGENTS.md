@@ -53,20 +53,22 @@ AutoReview、docs graph、project points 或 Git 分支维护。
 
 - `Start`
   - 读取 `AGENTS.md`、`docs_graph/agent_notes.md` 和相关 `manual.md`。
-  - 完整路径下，agent 分支不存在时从用户当前分支创建；已存在时直接切换。
+  - 不判断任务复杂度，不创建短路径；统一进入 `Align`。
 
 - `Align`
   - 读取相关 `project_points`。
   - 根据已有用户习惯和项目风格与用户对齐需求、交付物和停止条件。
+  - 判断任务走 `ShortPath` 还是完整 `Working` 路径。
   - 本状态不更新 docs graph。
 
 - `ShortPath`
   - 适用于少量文字、格式、轻微图示调整、简单查询或用户明确要求快速处理的任务。
   - 不创建或切换 agent 分支，不执行 AutoReview，不更新 docs graph 或 project points。
-  - 完成后直接向用户说明改动；如果过程中发现任务变复杂，转入 `Align` 或 `Working`。
+  - 完成后进入 `HumanReview` 给用户确认；如果过程中发现任务变复杂，转入 `Working`。
 
 - `Working`
   - 根据人工文件和用户指令执行任务。
+  - 完整路径下，agent 分支不存在时从用户当前分支创建；已存在时直接切换。
   - 涉及技术证据时优先使用论文 skill；不可用时回退到原始论文和期刊来源。
   - 使用 `project_points` 维护本轮产生的技术知识。
 
@@ -82,26 +84,23 @@ AutoReview、docs graph、project points 或 Git 分支维护。
   - 用户未接受时，不更新 docs graph，提交本轮结果后继续修改。
   - 用户接受时，使用 `docs-graph` 更新项目进度、项目风格和稳定的用户习惯，确认相关 project points，提交并合入用户分支。
 
-- `End`
-  - 项目达到停止条件或用户明确终止。
-
 ### 状态转移
 
 ```text
 Start → Align
-条件：完整路径下项目上下文已经读取，agent 分支已经建立
+条件：项目上下文已经读取
 
-Start → ShortPath
+Align → ShortPath
 条件：任务简单低风险，不产生需要沉淀的项目知识或复杂审查需求
 
-ShortPath → End
-条件：短任务已完成并向用户说明
+ShortPath → HumanReview
+条件：短任务产物已完成，需要用户确认
 
-ShortPath → Align
+ShortPath → Working
 条件：短任务过程中发现需求、证据或改动范围超出简单处理
 
 Align → Working
-条件：需求、交付物和停止条件已经确定，用户要求执行
+条件：完整任务的需求、交付物和停止条件已经确定，用户要求执行
 
 Working → Align
 条件：需求或人工约束需要重新确认
@@ -116,13 +115,13 @@ AutoReview → HumanReview
 条件：自动审查完成，或问题需要用户决定
 
 HumanReview → Working
-条件：用户未接受，但需求不变
+条件：用户未接受，且修改已超出短路径
 
 HumanReview → Align
 条件：用户改变需求，或接受阶段成果后继续下一轮
 
-HumanReview → End
-条件：用户接受最终成果并达到停止条件，或用户明确终止
+HumanReview → ShortPath
+条件：用户只要求少量快速修改
 ```
 
 ## 项目概述
