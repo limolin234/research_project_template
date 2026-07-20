@@ -33,8 +33,3 @@ temp/
 *.toc
 *.vrb
 *.xdv
-
-# Derived caches and heavy generated views
-derived_graph/
-project_points/index/*
-!project_points/index/README.md
