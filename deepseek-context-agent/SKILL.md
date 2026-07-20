@@ -1,16 +1,14 @@
 ---
 name: deepseek-context-agent
-description: Consult or extend a project-local DeepSeek context advisor that reads source-traceable facts from fact.md and carries noisy ideas, attempts, cautions, and negative results in deepseek_context.md. Use when an agent needs cross-note synthesis, source-aware credibility assessment, logical connections, or an explicitly typed working-context append without retaining query history.
+description: Consult or extend a project-local DeepSeek context advisor that carries noisy ideas, attempts, cautions, and negative results in deepseek_context.md. Use when an agent needs cross-note synthesis, logical connections, or an explicitly typed working-context append without retaining query history.
 ---
 
 # DeepSeek Context Agent
 
-Use `scripts/context_agent.py` as the only interface. Maintain source-traceable,
-verified facts in project-root `fact.md`. Use `deepseek_context.md` only for
-noisy working material that is still useful for reasoning.
-Treat both Markdown files as project-owned artifacts that can travel with the
-project's normal version history. Keep API credentials only in the environment
-or ignored `.env`.
+Use `scripts/context_agent.py` as the only interface. Use
+`deepseek_context.md` for noisy working material that is still useful for
+reasoning. Other project documents remain outside this Skill's storage
+contract. Keep API credentials only in the environment or ignored `.env`.
 
 ## Consult
 
@@ -24,11 +22,10 @@ python deepseek-context-agent/scripts/context_agent.py consult \
   "What assumptions currently limit this proposal?"
 ```
 
-The command sends only the fixed system prompt, current `fact.md`, current
-working context, and the current question. It never stores the question,
-DeepSeek reasoning, or the returned answer. Use `--fact PATH` or `--context
-PATH` for non-default files. Either project file may be absent or empty, but at
-least one must contain usable material.
+The command sends only the fixed system prompt, current working context, and
+the current question. It never stores the question, DeepSeek reasoning, or the
+returned answer. Use `--context PATH` for a non-default context file. The
+context file must contain usable material before consultation.
 
 Return only the command's formal JSON result to the main agent. Do not expose
 or reconstruct chain-of-thought. Treat `sources`, credibility assessments,
@@ -40,8 +37,8 @@ reasoning.
 Read [references/write-format.md](references/write-format.md) before writing.
 Append only when the user or main agent explicitly intends to retain working
 context. Never turn a normal consultation into an automatic write.
-`remember` writes only `deepseek_context.md`; update `fact.md` directly after
-verifying a fact and its source.
+`remember` writes only `deepseek_context.md`. Do not use it as a separate
+project fact ledger.
 
 ```bash
 python deepseek-context-agent/scripts/context_agent.py remember \
@@ -69,7 +66,7 @@ leaving room below the model's advertised 1M-token context limit.
 Read `DEEPSEEK_API_KEY` from the process environment first. If it is missing,
 load `./.env` without overriding existing environment variables. Optional
 variables are `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL`,
-`DEEPSEEK_THINKING`, `DEEPSEEK_FACT_FILE`, and `DEEPSEEK_CONTEXT_FILE`.
+`DEEPSEEK_THINKING`, and `DEEPSEEK_CONTEXT_FILE`.
 
 The default model is `deepseek-v4-flash`; thinking is enabled for synthesis,
 but the wrapper discards `reasoning_content` and returns only allow-listed

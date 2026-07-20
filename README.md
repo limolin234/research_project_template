@@ -6,10 +6,11 @@
 
 1. 先整理需求：明确项目是什么、要做什么、交付什么以及什么时候停止，然后写入 `AGENTS.md` 的“项目概述”。
 2. 按项目需要补充或修改 `AGENTS.md` 中要使用的 skill、工作流程和项目规范；不需要的内容不增加。
-3. 遇到需要人明确控制的内容，在对应位置放置 `manual.md` 并由人手动说明。只有确实需要全局与模块分层时，才拆分为根目录 `manual.md` 和 `modules/<模块>/manual.md`。
-4. 让 agent 读取 `AGENTS.md`，先交流确认需求，再明确要求实现。其他上下文和工作流由 `AGENTS.md` 引导。
-5. agent 到达停止条件或遇到需要人决定的问题时暂停并汇报。人验收接受后，agent 再更新 `docs_graph/agent_notes.md`；人补充或修改要求后，进入下一轮迭代。
-6. 少量文字、格式或简单图示调整可走短路径：agent 直接完成并汇报，不强制进入 AutoReview、项目记忆、画像维护或 Git 分支流程。
+3. DeepSeek key 默认从 shell 环境变量读取；需要文件回退时，将根目录 `.env.example` 复制为 `.env` 并填写，`.env` 不提交。
+4. 遇到需要人明确控制的内容，在对应位置放置 `manual.md` 并由人手动说明。只有确实需要全局与模块分层时，才拆分为根目录 `manual.md` 和 `modules/<模块>/manual.md`。
+5. 让 agent 读取 `AGENTS.md`，先交流确认需求，再明确要求实现。其他上下文和工作流由 `AGENTS.md` 引导。
+6. agent 到达停止条件或遇到需要人决定的问题时暂停并汇报。人验收接受后，agent 再更新 `docs_graph/agent_notes.md`；人补充或修改要求后，进入下一轮迭代。
+7. 少量文字、格式或简单图示调整可走短路径：agent 直接完成并汇报，不强制进入 AutoReview、项目记忆、画像维护或 Git 分支流程。
 
 **重要**:如果手动提交git要注意确定当前所处分支。完整任务中，Agent会在自身循环中创建自己的分支用于记录自身尝试，并只在用户通过时合入用户分支。
 
@@ -37,6 +38,7 @@
 ├── AGENTS.md
 ├── manual.md
 ├── fact.md
+├── .env.example
 ├── deepseek-context-agent/
 │   ├── SKILL.md
 │   └── scripts/context_agent.py

@@ -7,7 +7,7 @@
 ### 要使用的 skill
 
 1. `docs-graph`：维护项目进度、上下文入口、项目风格和稳定的用户协作习惯。
-2. `$deepseek-context-agent`：模板内置于 `deepseek-context-agent/`，首次使用前读取其中的 `SKILL.md`；结合根目录 `fact.md` 与按需生成的 `deepseek_context.md` 整合相关信息、逻辑关系和可信度；思路、尝试、否定路线和其他噪声工作材料通过该 skill 写入 `deepseek_context.md`，查询记录不保存。
+2. `$deepseek-context-agent`：模板内置于 `deepseek-context-agent/`，首次使用前读取其中的 `SKILL.md`；用于整合噪声的思路、尝试、否定路线和其他工作材料，查询记录不保存。
 3. 各类论文skill：检索和核验技术证据，优先使用相关领域期刊和原始论文，重要结论尽量多方验证；没有可用的论文 skill 时，仍以原始论文和期刊来源为证据。
 
 ### 文件交互规范
@@ -15,9 +15,8 @@
 1. `AGENTS.md` 和各处 `manual.md` 完全由人维护，agent 只读。
 2. `docs_graph/agent_notes.md` 记录已确认的项目进度、上下文入口和协作习惯。
 3. 根目录 `fact.md` 由 agent 自动维护，只记录已经核验且可追溯到明确来源的事实；思路、假设、尝试和未确认内容不得写入。`fact.md` 是项目资产，纳入版本管理。
-4. `deepseek_context.md` 由 `$deepseek-context-agent` 在首次实际写入时创建，保存思路、尝试、否定路线和其他有用但噪声较高的工作材料；不得保存查询、回答或模型推理过程。创建后作为项目资产纳入版本管理。
-5. 创建文件和目录时使用通用名称，按实际需要创建，不预建空结构。
-6. 上下文压缩或会话恢复后，继续工作前重新读取 `AGENTS.md`、`docs_graph/agent_notes.md`、`fact.md` 和相关 `manual.md`，并按任务需要查询 `$deepseek-context-agent`。
+4. 创建文件和目录时使用通用名称，按实际需要创建，不预建空结构。
+5. 上下文压缩或会话恢复后，继续工作前重新读取 `AGENTS.md`、`docs_graph/agent_notes.md`、`fact.md` 和相关 `manual.md`，并按任务需要从 `$deepseek-context-agent` 获取已有相关信息。
 
 #### Git 管理
 
@@ -72,14 +71,14 @@ AutoReview、docs graph、项目记忆或 Git 分支维护。
   - 完整路径下，agent 分支不存在时从用户当前分支创建；已存在时直接切换。
   - 涉及技术证据时优先使用论文 skill；不可用时回退到原始论文和期刊来源。
   - 已核验且来源明确的事实写入 `fact.md`。
-  - 思路、尝试、否定路线和其他需要保留的工作材料通过 `$deepseek-context-agent` 写入 `deepseek_context.md`。
+  - 思路、尝试、否定路线和其他需要保留的工作材料通过 `$deepseek-context-agent` 维护；按需从该 skill 获取已有相关信息。
 
 - `AutoReview`
   - 使用没有实现上下文的独立 agent 严格审查产物，验证实现、技术证据和项目要求是否一致。
-  - 独立 agent 不继承实现过程或主 agent 推理，只接收项目规则、任务需求、待审产物和必要证据。
+  - 独立 agent 不继承实现过程或主 agent 推理；审查输入必须包含对原始用户需求的忠实转述，以及项目规则、待审产物和必要证据。
   - 主 agent 阅读审查结果并决定后续状态。
   - 可自行修复的问题返回 `Working`。
-  - 审查中确认的事实修正同步到 `fact.md`；值得保留的失败原因或否定路线写入 `deepseek_context.md`。
+  - 审查中确认的事实修正同步到 `fact.md`；值得保留的失败原因或否定路线通过 `$deepseek-context-agent` 维护。
 
 - `HumanReview`
   - 向用户汇报产物、验证结果和待确认问题。

@@ -1,4 +1,4 @@
 interface:
   display_name: "DeepSeek Context Agent"
-  short_description: "Synthesize project facts and working context statelessly"
-  default_prompt: "Use $deepseek-context-agent to consult fact.md and deepseek_context.md without adding query history."
+  short_description: "Synthesize project working context statelessly"
+  default_prompt: "Use $deepseek-context-agent to consult deepseek_context.md without adding query history."

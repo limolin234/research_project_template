@@ -27,9 +27,8 @@ relationship edge.
 | `open-question` | Unresolved issue worth carrying forward | `inference`, `unknown` |
 
 Do not use `decision` for a model preference that no human accepted. Do not use
-`source-note` for an unsupported inference. Verified, source-traceable facts
-belong in project-root `fact.md`, not in this working context. A `source-note`
-is only a preliminary extraction retained for later synthesis.
+`source-note` for an unsupported inference. A `source-note` is a preliminary
+extraction retained for later synthesis, not a separate fact ledger.
 
 ## Stored representation
 

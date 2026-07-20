@@ -17,7 +17,6 @@ from typing import Any, Callable
 
 DEFAULT_MODEL = "deepseek-v4-flash"
 DEFAULT_BASE_URL = "https://api.deepseek.com"
-DEFAULT_FACT_FILE = "fact.md"
 DEFAULT_CONTEXT_FILE = "deepseek_context.md"
 DEFAULT_TIMEOUT = 120.0
 DEFAULT_MAX_TOKENS = 1800
@@ -29,7 +28,6 @@ ENV_ALLOWLIST = frozenset(
         "DEEPSEEK_MODEL",
         "DEEPSEEK_BASE_URL",
         "DEEPSEEK_THINKING",
-        "DEEPSEEK_FACT_FILE",
         "DEEPSEEK_CONTEXT_FILE",
     }
 )
@@ -126,11 +124,6 @@ def resolve_context_path(explicit: str | None) -> Path:
     return Path(configured).expanduser().resolve()
 
 
-def resolve_fact_path(explicit: str | None) -> Path:
-    configured = explicit or os.environ.get("DEEPSEEK_FACT_FILE") or DEFAULT_FACT_FILE
-    return Path(configured).expanduser().resolve()
-
-
 def read_optional_document(path: Path, label: str) -> str:
     if not path.exists():
         return ""
@@ -154,28 +147,17 @@ def read_required_document(path: Path, label: str) -> str:
         raise ContextAgentError(f"{label} is not valid UTF-8: {path}") from exc
 
 
-def ensure_separate_memory_paths(fact_path: Path, context_path: Path) -> None:
-    if fact_path == context_path:
+def read_context(path: Path) -> str:
+    context = read_optional_document(path, "Context file")
+    if not context:
         raise ContextAgentError(
-            "Fact and context files must be different; remember may never write to the fact file."
+            f"Context file is missing or empty: {path}. Add a record with the remember command first."
         )
-
-
-def read_project_documents(fact_path: Path, context_path: Path) -> tuple[str, str]:
-    ensure_separate_memory_paths(fact_path, context_path)
-    facts = read_optional_document(fact_path, "Fact file")
-    context = read_optional_document(context_path, "Context file")
-    if not facts and not context:
-        raise ContextAgentError(
-            "No usable project memory was found. Add source-traceable facts to "
-            f"{fact_path} or working material to {context_path}."
-        )
-    return facts, context
+    return context
 
 
 def build_messages(
     system_prompt: str,
-    facts: str,
     context: str,
     question: str,
     focus: str | None,
@@ -185,18 +167,13 @@ def build_messages(
         raise ContextAgentError("The consultation question cannot be empty.")
     if focus:
         request += f"\n\nFocus: {focus.strip()}"
-    messages = [{"role": "system", "content": system_prompt.strip()}]
-    if facts:
-        messages.append(
-            {"role": "user", "content": f"<project_facts>\n{facts}\n</project_facts>"}
-        )
-    if context:
-        messages.append(
-            {
-                "role": "user",
-                "content": f"<working_context>\n{context}\n</working_context>",
-            }
-        )
+    messages = [
+        {"role": "system", "content": system_prompt.strip()},
+        {
+            "role": "user",
+            "content": f"<working_context>\n{context}\n</working_context>",
+        },
+    ]
     messages.append(
         {
             "role": "user",
@@ -232,7 +209,6 @@ def estimate_tokens(text: str) -> int:
 
 def request_budget(
     system_prompt: str,
-    facts: str,
     context: str,
     question: str,
     focus: str | None,
@@ -248,10 +224,7 @@ def request_budget(
     if focus:
         request_text += f"\n\nFocus: {focus.strip()}"
     message_text = system_prompt.strip()
-    if facts:
-        message_text += f"\n<project_facts>\n{facts}\n</project_facts>"
-    if context:
-        message_text += f"\n<working_context>\n{context}\n</working_context>"
+    message_text += f"\n<working_context>\n{context}\n</working_context>"
     message_text += f"\n<current_request>\n{request_text}\n</current_request>"
     estimated_input = estimate_tokens(message_text) + 64
     estimated_total = estimated_input + max_tokens
@@ -379,7 +352,6 @@ def parse_formal_content(content: str) -> dict[str, Any]:
 
 def consult_context(
     *,
-    fact_path: Path,
     context_path: Path,
     system_prompt_path: Path,
     question: str,
@@ -393,18 +365,18 @@ def consult_context(
     transport: Callable[[str, str, dict[str, Any], float], dict[str, Any]] = _http_post_json,
     warning_sink: Callable[[str], None] | None = None,
 ) -> dict[str, Any]:
-    facts, context = read_project_documents(fact_path, context_path)
+    context = read_context(context_path)
     system_prompt = read_required_document(system_prompt_path, "System prompt")
     if timeout <= 0:
         raise ContextAgentError("Timeout must be greater than zero.")
-    budget = request_budget(system_prompt, facts, context, question, focus, max_tokens)
+    budget = request_budget(system_prompt, context, question, focus, max_tokens)
     if budget["warning"] and warning_sink is not None:
         warning_sink(
             "Warning: estimated request size is "
             f"{budget['estimated_total_tokens']:,} tokens; synthesis quality may degrade "
             f"before the hard limit of {budget['hard_limit']:,}."
         )
-    messages = build_messages(system_prompt, facts, context, question, focus)
+    messages = build_messages(system_prompt, context, question, focus)
     payload: dict[str, Any] = {
         "model": model,
         "messages": messages,
@@ -519,13 +491,6 @@ def _add_context_option(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def _add_fact_option(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
-        "--fact",
-        help=f"Fact file (default: ./{DEFAULT_FACT_FILE} or DEEPSEEK_FACT_FILE).",
-    )
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = JsonArgumentParser(
         description="Consult or append a stateless DeepSeek project context."
@@ -535,7 +500,6 @@ def build_parser() -> argparse.ArgumentParser:
     consult = subparsers.add_parser("consult", help="Consult without storing query history.")
     consult.add_argument("question", help="Natural-language request for the context advisor.")
     consult.add_argument("--focus", help="Optional focus or output constraint.")
-    _add_fact_option(consult)
     _add_context_option(consult)
     consult.add_argument("--env-file", default=".env", help="Fallback env file (default: ./.env).")
     consult.add_argument("--model", help=f"Model (default: {DEFAULT_MODEL}).")
@@ -564,7 +528,6 @@ def build_parser() -> argparse.ArgumentParser:
     budget = subparsers.add_parser("budget", help="Estimate context size without calling DeepSeek.")
     budget.add_argument("question", nargs="?", default="", help="Optional question to include.")
     budget.add_argument("--focus", help="Optional focus to include in the estimate.")
-    _add_fact_option(budget)
     _add_context_option(budget)
     budget.add_argument("--env-file", default=".env", help="Fallback env file (default: ./.env).")
     budget.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_TOKENS)
@@ -582,13 +545,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     load_env_fallback(env_path)
     context_path = resolve_context_path(args.context)
     if args.command == "budget":
-        fact_path = resolve_fact_path(args.fact)
-        facts, context = read_project_documents(fact_path, context_path)
+        context = read_context(context_path)
         prompt_path = default_system_prompt_path()
         prompt = read_required_document(prompt_path, "System prompt")
-        return request_budget(prompt, facts, context, args.question, args.focus, args.max_tokens)
+        return request_budget(prompt, context, args.question, args.focus, args.max_tokens)
     if args.command == "remember":
-        ensure_separate_memory_paths(resolve_fact_path(None), context_path)
         content = _read_content_argument(args.content)
         append_context(
             context_path,
@@ -617,7 +578,6 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if thinking not in {"enabled", "disabled"}:
         raise ContextAgentError("DEEPSEEK_THINKING must be 'enabled' or 'disabled'.")
     return consult_context(
-        fact_path=resolve_fact_path(args.fact),
         context_path=context_path,
         system_prompt_path=default_system_prompt_path(),
         question=args.question,

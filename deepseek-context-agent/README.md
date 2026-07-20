@@ -1,18 +1,17 @@
 # DeepSeek Context Agent
 
 `deepseek-context-agent` is a small, cross-platform context advisor for a main
-agent. It reads project facts from `fact.md`, keeps noisy working material in
-an append-only `deepseek_context.md`, and asks DeepSeek to synthesize both for
-each question.
+agent. It keeps noisy working material in an append-only
+`deepseek_context.md`, and asks DeepSeek to synthesize it for each question.
 
 The primary deployment is project-level: bundle the generic Skill with the
-project, and version `fact.md` plus `deepseek_context.md` with the rest of the
-project. The Skill contains no project-specific knowledge itself.
+project and version `deepseek_context.md` with the rest of the project. Other
+project memory files remain outside this Skill's storage contract. The Skill
+contains no project-specific knowledge itself.
 
-It is intentionally not a vector database or graph store. Verified,
-source-traceable facts belong in `fact.md`; hypotheses, ideas, attempts,
-cautions, negative results, and unfinished reasoning belong in
-`deepseek_context.md`.
+It is intentionally not a vector database or graph store. It is for hypotheses,
+ideas, attempts, cautions, negative results, and unfinished reasoning that are
+useful across tasks.
 
 ## Requirements
 
@@ -48,8 +47,7 @@ directory and restart the Codex session:
 
 The skill wrapper and CLI use the same script. Installing the skill does not
 create a context file; the first explicit `remember` call creates the
-configured file in the working project. `fact.md` is maintained separately by
-the project agent.
+configured file in the working project.
 
 ## Configuration
 
@@ -61,7 +59,6 @@ DEEPSEEK_API_KEY=your-key
 DEEPSEEK_MODEL=deepseek-v4-flash
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_THINKING=enabled
-DEEPSEEK_FACT_FILE=fact.md
 DEEPSEEK_CONTEXT_FILE=deepseek_context.md
 ```
 
@@ -92,10 +89,9 @@ python deepseek-context-agent/scripts/context_agent.py consult \
   "Which assumptions currently limit this proposal?"
 ```
 
-The default fact and record files are `./fact.md` and
-`./deepseek_context.md`. Override them with `--fact PATH` / `--context PATH` or
-`DEEPSEEK_FACT_FILE` / `DEEPSEEK_CONTEXT_FILE`. Either file may be absent or
-empty, but consultation requires useful content in at least one of them.
+The default record file is `./deepseek_context.md`. Override it with
+`--context PATH` or `DEEPSEEK_CONTEXT_FILE`. Consultation requires useful
+content in the context file.
 
 Inspect the conservative local budget estimate without making an API call:
 
@@ -109,12 +105,13 @@ python deepseek-context-agent/scripts/context_agent.py budget \
 Each consultation constructs a fresh request containing:
 
 ```text
-fixed system prompt + current fact.md + current deepseek_context.md + current question
+fixed system prompt + current deepseek_context.md + current question
 ```
 
 The question, returned answer, and DeepSeek `reasoning_content` are never
-written to either project file or reused in the next request. Every query is a
-fresh branch from the same files. The wrapper returns only these formal fields:
+written to the context file or reused in the next request. Every query is a
+fresh branch from the same context snapshot. The wrapper returns only these
+formal fields:
 
 - `content`
 - `supporting_information`
@@ -143,11 +140,9 @@ type/basis combinations are defined in
 [`references/write-format.md`](references/write-format.md). A normal
 consultation never promotes its own output into memory.
 
-The main project agent maintains `fact.md` directly. Only verified facts with
-an explicit source pointer belong there; working ideas and attempts do not.
-Neither `fact.md` nor `deepseek_context.md` is a cache. Keep them under the
+`deepseek_context.md` is project content, not a cache. Keep it under the
 project's normal version control unless that project's policy explicitly says
-otherwise.
+otherwise. Other project memory files are outside this Skill's contract.
 
 ## Context limits and errors
 
@@ -168,15 +163,3 @@ No usable project memory, invalid file paths or `.env` lines, invalid write
 types, permission errors, timeouts, HTTP failures, invalid API JSON, malformed
 formal output, and budget violations are reported as a JSON error on stderr
 with exit code `2`.
-
-## Verification
-
-Run the local tests with:
-
-```bash
-python -m unittest discover -s deepseek-context-agent/tests -v
-```
-
-The tests use a fake transport and do not require an API key. A real API smoke
-test should be run only when the project has authorized sending its context to
-DeepSeek.
