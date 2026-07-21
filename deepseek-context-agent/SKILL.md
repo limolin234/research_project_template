@@ -1,21 +1,22 @@
 ---
 name: deepseek-context-agent
-description: Consult or extend a project-local DeepSeek context advisor that carries noisy ideas, attempts, cautions, and negative results in deepseek_context.md. Use when an agent needs cross-note synthesis, logical connections, or an explicitly typed working-context append without retaining query history.
+description: Consult or extend a project-local DeepSeek context advisor that carries noisy ideas, attempts, cautions, and negative results in deepseek-context-agent/deepseek_context.md. Use when an agent needs cross-note synthesis, logical connections, or an explicitly typed working-context append without retaining query history.
 ---
 
 # DeepSeek Context Agent
 
 Use `scripts/context_agent.py` as the only interface. Use
-`deepseek_context.md` for noisy working material that is still useful for
-reasoning. Other project documents remain outside this Skill's storage
-contract. Keep API credentials only in the environment or ignored `.env`.
+`deepseek-context-agent/deepseek_context.md` for noisy working material that is
+still useful for reasoning. The template tracks this file as an empty
+placeholder; only `remember` writes records to it. Other project documents
+remain outside this Skill's storage contract. Keep API credentials only in the
+environment or ignored `.env`.
 
 ## Consult
 
-Run from the target project directory so default project files and `.env` stay
-project-local. When the Skill is bundled in the project root, use the relative
-path shown below. For a user-level installation, replace
-`deepseek-context-agent` with the resolved absolute Skill directory.
+Run from the target project directory so the fallback `.env` stays
+project-local. The default context path is anchored inside the bundled Skill,
+so changing the current working directory cannot move the default file.
 
 ```bash
 python deepseek-context-agent/scripts/context_agent.py consult \
@@ -37,8 +38,9 @@ reasoning.
 Read [references/write-format.md](references/write-format.md) before writing.
 Append only when the user or main agent explicitly intends to retain working
 context. Never turn a normal consultation into an automatic write.
-`remember` writes only `deepseek_context.md`. Do not use it as a separate
-project fact ledger.
+`remember` writes only `deepseek-context-agent/deepseek_context.md` by default.
+Do not edit the placeholder manually or use it as a separate project fact
+ledger.
 
 ```bash
 python deepseek-context-agent/scripts/context_agent.py remember \
@@ -67,6 +69,12 @@ Read `DEEPSEEK_API_KEY` from the process environment first. If it is missing,
 load `./.env` without overriding existing environment variables. Optional
 variables are `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL`,
 `DEEPSEEK_THINKING`, and `DEEPSEEK_CONTEXT_FILE`.
+
+The template `.env.example` configures the same Skill-local file with the
+relative path `deepseek-context-agent/deepseek_context.md`. Relative paths from
+the environment are resolved from the fallback `.env` directory; an explicit
+`--context PATH` is resolved from the current working directory. Keep the
+default unless the project deliberately stores its working context elsewhere.
 
 The default model is `deepseek-v4-flash`; thinking is enabled for synthesis,
 but the wrapper discards `reasoning_content` and returns only allow-listed

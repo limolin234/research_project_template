@@ -119,9 +119,18 @@ def default_system_prompt_path() -> Path:
     return Path(__file__).resolve().parents[1] / "references" / "system_prompt.md"
 
 
-def resolve_context_path(explicit: str | None) -> Path:
-    configured = explicit or os.environ.get("DEEPSEEK_CONTEXT_FILE") or DEFAULT_CONTEXT_FILE
-    return Path(configured).expanduser().resolve()
+def default_context_path() -> Path:
+    return Path(__file__).resolve().parents[1] / DEFAULT_CONTEXT_FILE
+
+
+def resolve_context_path(explicit: str | None, project_dir: Path | None = None) -> Path:
+    configured = explicit or os.environ.get("DEEPSEEK_CONTEXT_FILE")
+    if configured:
+        path = Path(configured).expanduser()
+        if explicit is None and project_dir is not None and not path.is_absolute():
+            path = project_dir / path
+        return path.resolve()
+    return default_context_path()
 
 
 def read_optional_document(path: Path, label: str) -> str:
@@ -487,7 +496,10 @@ def _read_content_argument(value: str | None) -> str:
 def _add_context_option(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--context",
-        help=f"Context file (default: ./{DEFAULT_CONTEXT_FILE} or DEEPSEEK_CONTEXT_FILE).",
+        help=(
+            "Context file (default: deepseek_context.md inside the bundled Skill; "
+            "override with DEEPSEEK_CONTEXT_FILE)."
+        ),
     )
 
 
@@ -543,7 +555,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     env_path = Path(args.env_file).expanduser().resolve()
     load_env_fallback(env_path)
-    context_path = resolve_context_path(args.context)
+    context_path = resolve_context_path(args.context, env_path.parent)
     if args.command == "budget":
         context = read_context(context_path)
         prompt_path = default_system_prompt_path()
@@ -567,6 +579,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "sources": args.sources,
         }
 
+    # Report an unusable placeholder before requiring network credentials.
+    read_context(context_path)
     api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
     if not api_key:
         raise ContextAgentError(

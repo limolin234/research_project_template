@@ -21,14 +21,28 @@
 - `modules/<模块>/manual.md`：人维护的模块内容。模块存在真实工作时再创建。
 - `docs_graph/agent_notes.md`：agent 维护的项目进度、上下文入口、自动纠偏和用户画像（协作习惯）。
 - `fact.md`：agent 自动维护的事实文件，只保存已核验、可追溯到明确来源的事实。
-- `deepseek-context-agent/`：模板内置的项目级通用上下文 skill；按需创建 `deepseek_context.md`，保存思路、尝试、否定路线和其他噪声工作材料，不保存查询历史。Skill 本身不包含具体项目知识。
+- `deepseek-context-agent/`：模板内置的项目级通用上下文 skill；通过 `consult` 查询、通过 `remember` 写入同目录的 `deepseek_context.md`，不保存查询历史。模板只提供空占位，不预置具体项目知识。
 - 最终报告、检索记录、数据、脚本和图片：agent 执行并维护，人负责验收。
+
+DeepSeek 上下文的读写统一由 skill 脚本完成：
+
+```bash
+# 明确保留一条工作上下文
+python deepseek-context-agent/scripts/context_agent.py remember \
+  --type hypothesis --basis inference --source "user discussion" \
+  "待验证的思路"
+
+# 查询现有上下文，不保存本次问题和回答
+python deepseek-context-agent/scripts/context_agent.py consult "当前有哪些未验证假设？"
+```
+
+空占位文件不需要手工编辑；尚未写入任何记录时，`consult` 会明确提示先使用 `remember`。完整参数和记录类型见 `deepseek-context-agent/SKILL.md`。
 
 ## Git 记录
 
 完整任务中，agent 会自动创建 `agent/<任务名>` 分支，用于保留探索和迭代记录。人工确认本轮结果后，agent 再将结果合入人工使用的分支。短路径任务不强制创建分支。
 
-`fact.md` 和实际使用后生成的 `deepseek_context.md` 都是项目内容，随项目一起版本管理；包含 API key 的 `.env` 不提交。
+`fact.md` 和 `deepseek-context-agent/deepseek_context.md` 都是项目内容，随项目一起版本管理；包含 API key 的 `.env` 不提交。
 
 ## 推荐结构
 
@@ -41,6 +55,7 @@
 ├── .env.example
 ├── deepseek-context-agent/
 │   ├── SKILL.md
+│   ├── deepseek_context.md
 │   └── scripts/context_agent.py
 ├── docs_graph/
 │   └── agent_notes.md
@@ -50,7 +65,6 @@
 
 ```text
 modules/<模块>/manual.md   # 人写的模块内容
-deepseek_context.md       # agent 按需创建的工作上下文
 sources/                  # 原始论文、标准和来源记录
 data/                     # 输入数据和生成表格
 scripts/                  # 可复现命令和程序
@@ -76,4 +90,4 @@ modules/
 
 人工无需维护索引或关系图。Agent 根据 `AGENTS.md` 自动维护根目录
 `fact.md`；只有实际出现值得跨任务保留的思路或尝试时，才通过模板内置
-的 `$deepseek-context-agent` 创建并维护 `deepseek_context.md`。
+的 `$deepseek-context-agent` 向 `deepseek-context-agent/deepseek_context.md` 写入内容。

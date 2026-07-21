@@ -1,11 +1,13 @@
 # DeepSeek Context Agent
 
 `deepseek-context-agent` is a small, cross-platform context advisor for a main
-agent. It keeps noisy working material in an append-only
-`deepseek_context.md`, and asks DeepSeek to synthesize it for each question.
+agent. It keeps noisy working material in the append-only
+`deepseek-context-agent/deepseek_context.md`, and asks DeepSeek to synthesize it
+for each question.
 
 The primary deployment is project-level: bundle the generic Skill with the
-project and version `deepseek_context.md` with the rest of the project. Other
+project and version `deepseek-context-agent/deepseek_context.md` with the rest
+of the project. Other
 project memory files remain outside this Skill's storage contract. The Skill
 contains no project-specific knowledge itself.
 
@@ -45,9 +47,14 @@ directory and restart the Codex session:
   `%USERPROFILE%\.codex\skills\deepseek-context-agent` when `CODEX_HOME` is not
   set
 
-The skill wrapper and CLI use the same script. Installing the skill does not
-create a context file; the first explicit `remember` call creates the
-configured file in the working project.
+When using a user-level installation, always set `--context PATH` or
+`DEEPSEEK_CONTEXT_FILE` to a file inside the target project. The bundled
+Skill-local default is intended for this template and would otherwise be shared
+by every project using the same installation.
+
+The skill wrapper and CLI use the same script. The bundled template includes an
+empty context placeholder; the first explicit `remember` call appends the first
+record to it.
 
 ## Configuration
 
@@ -59,7 +66,7 @@ DEEPSEEK_API_KEY=your-key
 DEEPSEEK_MODEL=deepseek-v4-flash
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_THINKING=enabled
-DEEPSEEK_CONTEXT_FILE=deepseek_context.md
+DEEPSEEK_CONTEXT_FILE=deepseek-context-agent/deepseek_context.md
 ```
 
 The `.env` file is optional and should not be committed. Other variables in the
@@ -89,9 +96,10 @@ python deepseek-context-agent/scripts/context_agent.py consult \
   "Which assumptions currently limit this proposal?"
 ```
 
-The default record file is `./deepseek_context.md`. Override it with
-`--context PATH` or `DEEPSEEK_CONTEXT_FILE`. Consultation requires useful
-content in the context file.
+The default record file is `deepseek-context-agent/deepseek_context.md` inside
+the bundled Skill. Override it with `--context PATH` or
+`DEEPSEEK_CONTEXT_FILE`. Consultation requires useful content in the context
+file.
 
 Inspect the conservative local budget estimate without making an API call:
 
@@ -105,7 +113,7 @@ python deepseek-context-agent/scripts/context_agent.py budget \
 Each consultation constructs a fresh request containing:
 
 ```text
-fixed system prompt + current deepseek_context.md + current question
+fixed system prompt + current deepseek-context-agent/deepseek_context.md + current question
 ```
 
 The question, returned answer, and DeepSeek `reasoning_content` are never
@@ -127,8 +135,9 @@ support, conflict, dependency, limitation, and extension relationships.
 ## Write boundary
 
 `remember` is the tool's only write operation. It writes only
-`deepseek_context.md`, appends one Markdown record, and does not create IDs,
-graph edges, query logs, or automatic model writes. The allowed types are:
+`deepseek-context-agent/deepseek_context.md`, appends one Markdown record, and
+does not create IDs, graph edges, query logs, or automatic model writes. The
+allowed types are:
 
 ```text
 source-note, decision, hypothesis, insight,
@@ -140,9 +149,10 @@ type/basis combinations are defined in
 [`references/write-format.md`](references/write-format.md). A normal
 consultation never promotes its own output into memory.
 
-`deepseek_context.md` is project content, not a cache. Keep it under the
-project's normal version control unless that project's policy explicitly says
-otherwise. Other project memory files are outside this Skill's contract.
+`deepseek-context-agent/deepseek_context.md` is project content, not a cache.
+Keep it under the project's normal version control unless that project's policy
+explicitly says otherwise. Other project memory files are outside this Skill's
+contract.
 
 ## Context limits and errors
 
